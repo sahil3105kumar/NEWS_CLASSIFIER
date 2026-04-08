@@ -184,4 +184,7 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+# Virtual Environment
+news_classifier/
+
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
