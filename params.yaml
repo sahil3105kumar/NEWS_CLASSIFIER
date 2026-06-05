@@ -1,5 +1,4 @@
 data:
-  url: "https://news.ycombinator.com/"
   save_path: "data/raw/news.csv"
 
 scraping:
@@ -24,6 +23,7 @@ preprocessing:
 sources:
   - name: hackernews
     url: "https://news.ycombinator.com/"
+    type: html # HTML scraping requires custom parsing logic to extract titles and links.
     
   - name: bbc_news
     url: "http://feeds.bbci.co.uk/news/rss.xml"
@@ -40,3 +40,8 @@ sources:
   - name: espn
     url: "https://www.espn.com/espn/rss/news"
     type: rss
+
+dataset:
+  name: "ag_news"
+  num_classes: 4
+  labels: ["World", "Sports", "Business", "Sci/Tech"]
