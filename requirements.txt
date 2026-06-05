@@ -9,7 +9,7 @@ typing_extensions
 urllib3
 
 dvc
-dvc[gdrive]
+dvc-gdrive
 
 mlflow
 mlflow
