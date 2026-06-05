@@ -1,22 +1,22 @@
 """
 Data Fetching Script for News Headlines
 
-This module scrapes the front page of Hacker News and saves the titles
+This module scrapes news title from sources mentioned in params.yaml and saves the titles
 to a CSV file for later model training.
 
 Usage:
     python -m src.data.fetch_data
 """
 
-import csv
 import logging
-from logging import config
 import time
 from pathlib import Path
+import pandas as pd
 
 import requests
 from bs4 import BeautifulSoup
 import yaml
+import feedparser
 
 
 logging.basicConfig(
@@ -41,10 +41,10 @@ def load_config(config_path: Path | None = None) -> dict:
     logger.info(f"Configuration loaded from {config_path}")
     return config
 
-def fetch_html(url: str) -> str:
+def fetch_and_parse_html(url: str) -> list:
     """
-    Downloads the HTML content from a given URL.
-    
+    Downloads the HTML content from a given URL and parses the titles.
+
     - Use a proper User-Agent header. Some sites block default Python requests.
     - Add error handling for network issues.
     - Add a small delay to be a good internet citizen.
@@ -65,20 +65,17 @@ def fetch_html(url: str) -> str:
         time.sleep(1) 
         
         logger.info("Successfully fetched HTML content.")
-        return response.text
     
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to fetch URL {url}: {e}")
         raise
 
-def parse_titles(html_content: str) -> list:
-    """
-    Extracts story titles from Hacker News HTML.
-    
-    Returns:
-        list: A list of strings (the headlines).
-    """
-    soup = BeautifulSoup(html_content, 'html.parser')
+    try:
+        soup = BeautifulSoup(response.text, 'html.parser')
+    except Exception as e:
+        logger.error(f"Failed to parse HTML from {url}: {e}")
+        raise
+
     titles = []
     
     # Hacker News structure: Titles are inside <span class="titleline"> -> <a>
@@ -96,39 +93,108 @@ def parse_titles(html_content: str) -> list:
         logger.warning("No titles found. The website structure might have changed.")
         # ⭐ if this happens, we might want to save the raw HTML for debugging and inspect and update accordingly
         with open("debug_raw_html.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
+            f.write(response.text)
     else:
         logger.info(f"Successfully extracted {len(titles)} headlines.")
         
     return titles
 
-def save_to_csv(titles: list, save_path: Path):
+def fetch_and_parse_rss(url: str) -> list:
+    """
+    Fetches and parses RSS feed from a given URL.
+    
+    Returns:
+        list: A list of story titles extracted from the RSS feed.
+    """
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    try:
+        logger.info(f"Fetching RSS feed from {url}...")
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        feed = feedparser.parse(response.content)
+        items = feed.entries
+        
+        titles = [' '.join(item.title.split()) for item in items if item.title]
+        
+        logger.info(f"Successfully fetched and parsed RSS feed. Found {len(titles)} titles.")
+        return titles
+    
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch RSS feed from {url}: {e}")
+        raise
+
+
+def save_to_csv(titles: list, save_path: Path, mode: str = 'append'):
     """
     Saves the list of titles to a CSV file.
     
-    BEST PRACTICE:
-    - Create the parent directory if it doesn't exist.
-    - Use 'utf-8' encoding to handle special characters.
-    - Write headers (Label, Title) so the training script knows what to expect.
+    BEST PRACTICES:
+    - 'append' mode: Add new data without deleting old data.
+    - Deduplication: Avoid inserting the same title multiple times.
+    - Timestamping: (Optional) Track when each row was collected.
+    - Atomic writes: Write to a temp file first, then rename to avoid corruption.
+    
+    Args:
+        titles: List of headline strings.
+        save_path: Path to the CSV file.
+        mode: 'overwrite' or 'append' (default: 'append').
     """
-    # Ensure the directory exists
+    # Ensure directory exists
     save_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(save_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        # Write header
-        writer.writerow(['label', 'title'])
-        
-        # For Hacker News, we don't have pre-defined labels. 
-        # We will simulate a binary label for educational purposes.
-        # Example: If title contains '?' it might be a question (label 1), else 0.
-        # This is just to have a target variable for the classifier.
-        for title in titles:
-            # Simple heuristic: Is it a question?
-            label = 1 if '?' in title else 0
-            writer.writerow([label, title])
-            
-    logger.info(f"Data saved successfully to {save_path}")
+    new_rows = []
+    existing_titles = set()
+    existing_df = pd.DataFrame()
+    combined_df = pd.DataFrame()
+
+    # If appending and file exists, load existing data for deduplication
+    if mode == 'append' and save_path.exists():
+        try:
+            existing_df = pd.read_csv(save_path)
+            existing_titles = set(existing_df['title'].tolist())
+            logger.info(f"Found {len(existing_titles)} existing headlines in dataset.")
+        except Exception as e:
+            logger.warning(f"Could not read existing CSV. Will overwrite. Error: {e}")
+            mode = 'overwrite'  # Fallback to overwrite if file is corrupt
+    
+    # Prepare new rows, skipping duplicates
+    for title in titles:
+        if title not in existing_titles:
+            # ⭐ BEST PRACTICE: Add a timestamp column for time-series analysis
+            new_rows.append({
+                'is_question': 1 if '?' in title else 0, # 1 is for questions, 0 for statements
+                'title': title,
+                'scraped_at': pd.Timestamp.now().isoformat()
+            })
+    
+    if not new_rows:
+        logger.info("No new headlines to add. File unchanged.")
+        return
+    
+    logger.info(f"Adding {len(new_rows)} new headlines to dataset.")
+    new_df = pd.DataFrame(new_rows)
+    
+    if mode == 'append' and save_path.exists():
+        # Combine old and new data
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+
+        # ⭐ BEST PRACTICE: Write to a temporary file first, then replace
+
+        temp_path = save_path.with_suffix('.csv.tmp')
+        combined_df.to_csv(temp_path, index=False, encoding='utf-8')
+        temp_path.replace(save_path)
+        total_rows = len(combined_df)
+        logger.info(f"Dataset updated successfully. Total rows now: {total_rows}")
+    else:
+        # Overwrite mode (first run)
+        new_df.to_csv(save_path, index=False, encoding='utf-8')
+        total_rows = len(new_df)
+        logger.info(f"Dataset created successfully with {total_rows} rows.")
+    
 
 def main():
     """Main entry point for the script."""
@@ -140,26 +206,34 @@ def main():
     except FileNotFoundError:
         return  # Exit if no config
     
-    url = config['data']['url']
     save_path = Path(config['data']['save_path'])
+
     
-    # 2. Fetch HTML
-    try:
-        html = fetch_html(url)
-    except requests.exceptions.RequestException:
-        logger.error("Exiting due to fetch failure.")
-        return
+    alltitles = []
+    # 2. Fetch and parse titles
     
-    # 3. Parse Titles
-    titles = parse_titles(html)
+    for source in config['sources']:
+        if source['type'] == 'html':
+            try:
+                titles= fetch_and_parse_html(source['url'])
+                alltitles.extend(titles)
+            except requests.exceptions.RequestException:
+                logger.error(f"Error fetching HTML from {source['url']}")
+        else:
+            try:
+                titles = fetch_and_parse_rss(source['url'])
+                alltitles.extend(titles)
+            except requests.exceptions.RequestException:
+                logger.error(f"Error fetching RSS from {source['url']}")
+
     
-    # 4. Save to CSV
-    if titles:
-        save_to_csv(titles, save_path)
+    
+    # 3. Save to CSV (append mode by default)
+    if alltitles:       
+        save_to_csv(alltitles, save_path, mode='append') 
         logger.info("Data fetch process completed successfully.")
     else:
         logger.error("No data to save. Pipeline stopping.")
-        # ⭐ BEST PRACTICE: Exit with a non-zero code so automation (GitHub Actions) knows it failed.
         exit(1)
 
 if __name__ == "__main__":

@@ -16,4 +16,5 @@ mlflow
 pandas
 scikit-learn
 feedparser
+lxml
 
