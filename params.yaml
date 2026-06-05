@@ -4,3 +4,39 @@ data:
 
 scraping:
   user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+model:
+  # Text vectorization parameters
+  max_features: 5000
+  ngram_range: [1, 2]  # Use both unigrams and bigrams
+  
+  # Classifier parameters
+  C: 1.0              # Regularization strength for Logistic Regression
+  random_state: 42
+  
+  # Training split
+  test_size: 0.2
+
+preprocessing:
+  # Text cleaning parameters
+  min_title_length: 10
+
+sources:
+  - name: hackernews
+    url: "https://news.ycombinator.com/"
+    
+  - name: bbc_news
+    url: "http://feeds.bbci.co.uk/news/rss.xml"
+    type: rss # rss gives us a structured format to easily extract titles and links.
+    
+  - name: reuters_world
+    url: "https://feeds.reuters.com/reuters/worldNews"
+    type: rss
+    
+  - name: techcrunch
+    url: "https://techcrunch.com/feed/"
+    type: rss
+    
+  - name: espn
+    url: "https://www.espn.com/espn/rss/news"
+    type: rss
