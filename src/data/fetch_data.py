@@ -118,7 +118,7 @@ def fetch_and_parse_rss(url: str) -> list:
         feed = feedparser.parse(response.content)
         items = feed.entries
         
-        titles = [' '.join(item.title.split()) for item in items if item.title]
+        titles = [' '.join(item.title.split()) for item in items if item.title] # type: ignore
         
         logger.info(f"Successfully fetched and parsed RSS feed. Found {len(titles)} titles.")
         return titles

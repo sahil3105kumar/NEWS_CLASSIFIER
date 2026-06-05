@@ -1,0 +1,23 @@
+artifact_path: /home/sahil/News_classifier/mlruns/0/models/m-1a05e73310f54f5eaf44f0fad87b2815/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.11.1
+model_id: m-1a05e73310f54f5eaf44f0fad87b2815
+model_size_bytes: 23193
+model_uuid: m-1a05e73310f54f5eaf44f0fad87b2815
+prompts: null
+run_id: b448b49bce7e47e7a26eb3ba164e1d80
+utc_time_created: '2026-04-11 21:23:44.316018'

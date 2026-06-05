@@ -11,6 +11,7 @@ Usage:
 import logging
 import sys
 from pathlib import Path
+import json
 
 import mlflow
 from mlflow import sklearn
@@ -123,6 +124,14 @@ def train_and_evaluate(
         # Predict and evaluate
         y_pred = pipeline.predict(X_test)
         accuracy = accuracy_score(y_test, y_pred)
+
+        metrics = {
+            "accuracy": accuracy,
+            "test_size": len(X_test),
+            "train_size": len(X_train)
+        }
+        # with open("metrics.json", "w") as f:
+            # json.dump(metrics, f, indent=2)
         
         # Log metrics
         mlflow.log_metric("accuracy", accuracy)
