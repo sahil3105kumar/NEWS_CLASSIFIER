@@ -59,7 +59,7 @@ def load_data() -> tuple[pd.Series, pd.Series]:
     """
     logger.info("Loading AG News dataset from HuggingFace...")
     ds = load_dataset("fancyzhx/ag_news", split="train")
-    df = pd.DataFrame(ds)
+    df = pd.DataFrame(ds) #type: ignore
     # columns: 'text' and 'label' (0=World, 1=Sports, 2=Business, 3=Sci/Tech)
     logger.info(f"Loaded {len(df)} rows.")
     logger.info(f"Label distribution:\n{df['label'].value_counts().to_dict()}")
@@ -124,7 +124,7 @@ def run_gridsearch(
         n_jobs=-1,
         verbose=1
     )
-    gs.fit(X_train, y_train)
+    gs.fit(X_train, y_train) #type: ignore
     logger.info(f"Best CV score: {gs.best_score_:.4f}")
     logger.info(f"Best params: {gs.best_params_}")
     return gs.best_estimator_, gs.best_params_, gs.best_score_
@@ -156,7 +156,7 @@ def evaluate_and_log(
         accuracy = accuracy_score(y_test, y_pred)
 
         # Log metrics
-        mlflow.log_metric("test_accuracy", accuracy)
+        mlflow.log_metric("test_accuracy", accuracy) #type: ignore
         mlflow.log_metric("best_cv_score", best_cv_score)
 
         # Save and log classification report
@@ -172,7 +172,7 @@ def evaluate_and_log(
         mlflow.log_artifact(str(report_path))
 
         # Log model
-        mlflow.sklearn.log_model(
+        mlflow.sklearn.log_model( #type: ignore
             sk_model=best_estimator,
             artifact_path="model",
             registered_model_name=f"news_classifier_{model_type}"
@@ -181,7 +181,7 @@ def evaluate_and_log(
         logger.info(f"[{model_type}] Test Accuracy: {accuracy:.4f}")
         logger.info(f"\n{classification_report(y_test, y_pred, target_names=LABEL_NAMES)}")
 
-    return accuracy
+    return accuracy #type: ignore
 
 
 def main():
