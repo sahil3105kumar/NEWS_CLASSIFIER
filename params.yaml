@@ -5,38 +5,42 @@ scraping:
   user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
 model:
-  # Text vectorization parameters
   max_features: 5000
-  ngram_range: [1, 2]  # Use both unigrams and bigrams
-  
-  # Classifier parameters
-  C: 1.0              # Regularization strength for Logistic Regression
+  ngram_range: [1, 2]
+  C: 1.0
   random_state: 42
-  
-  # Training split
+  alpha: 1.0
+  fit_prior: true
   test_size: 0.2
+  min_accuracy_threshold: 0.70
+  models_to_train:
+    - logistic
+    - naive_bayes
+
+gridsearch:
+  logistic:
+    classifier__C: [0.1, 1.0, 10.0]
+    vectorizer__max_features: [3000, 5000, 10000]
+  naive_bayes:
+    classifier__alpha: [0.1, 0.5, 1.0]
+    vectorizer__max_features: [3000, 5000, 10000]
 
 preprocessing:
-  # Text cleaning parameters
   min_title_length: 10
 
 sources:
   - name: hackernews
     url: "https://news.ycombinator.com/"
-    type: html # HTML scraping requires custom parsing logic to extract titles and links.
-    
+    type: html
   - name: bbc_news
     url: "http://feeds.bbci.co.uk/news/rss.xml"
-    type: rss # rss gives us a structured format to easily extract titles and links.
-    
+    type: rss
   - name: reuters_world
     url: "https://feeds.reuters.com/reuters/worldNews"
     type: rss
-    
   - name: techcrunch
     url: "https://techcrunch.com/feed/"
     type: rss
-    
   - name: espn
     url: "https://www.espn.com/espn/rss/news"
     type: rss

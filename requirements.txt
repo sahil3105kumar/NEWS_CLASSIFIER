@@ -12,9 +12,10 @@ dvc
 dvc-gdrive
 
 mlflow
-mlflow
 pandas
 scikit-learn
 feedparser
 lxml
 
+datasets
+joblib

@@ -1,0 +1,26 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/raw/news.csv
+      hash: md5
+      md5: 12f082baada6d74e5255190992017923
+      size: 8128
+    - path: params.yaml
+      hash: md5
+      md5: 2eed0a899c41b272123eba0ad0209e96
+      size: 1202
+    - path: src/models/train.py
+      hash: md5
+      md5: bc5df67cf6c9ab018e36f77f37c3c6a9
+      size: 6683
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+    - path: mlflow.db
+      hash: md5
+      md5: 5d188a2bc4a65ce1646720e39d494e2c
+      size: 663552
