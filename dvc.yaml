@@ -1,12 +1,30 @@
 stages:
-  train:
-    cmd: python src/train.py
+  fetch:
+    cmd: python -m src.data.fetch_data
     deps:
-    - src/models/train.py
-    - data/raw/news.csv
-    - params.yaml
+      - src/data/fetch_data.py
+      - params.yaml
     outs:
-    # - models/
-    - mlflow.db
+      - data/raw/news.csv
+
+  train:
+    cmd: python -m src.models.train
+    deps:
+      - src/models/train.py
+      - data/raw/news.csv
+      - params.yaml
+    outs:
+      - models/best_model.pkl
     metrics:
-    - metrics.json
+      - metrics.json
+
+  predict:
+    cmd: python -m src.models.predict
+    deps:
+      - src/models/predict.py
+      - models/best_model.pkl
+      - data/raw/news.csv
+    outs:
+      - data/processed/predictions.csv
+    metrics:
+      - reports/prediction_stats.json

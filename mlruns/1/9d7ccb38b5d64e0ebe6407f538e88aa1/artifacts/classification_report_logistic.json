@@ -1,0 +1,39 @@
+{
+  "World": {
+    "precision": 0.9263104152484684,
+    "recall": 0.9071666666666667,
+    "f1-score": 0.9166385988548332,
+    "support": 6000.0
+  },
+  "Sports": {
+    "precision": 0.9537712895377128,
+    "recall": 0.98,
+    "f1-score": 0.966707768187423,
+    "support": 6000.0
+  },
+  "Business": {
+    "precision": 0.8907633205278103,
+    "recall": 0.8888333333333334,
+    "f1-score": 0.889797280387086,
+    "support": 6000.0
+  },
+  "Sci/Tech": {
+    "precision": 0.8991962491627595,
+    "recall": 0.895,
+    "f1-score": 0.8970932175075176,
+    "support": 6000.0
+  },
+  "accuracy": 0.91775,
+  "macro avg": {
+    "precision": 0.9175103186191877,
+    "recall": 0.91775,
+    "f1-score": 0.917559216234215,
+    "support": 24000.0
+  },
+  "weighted avg": {
+    "precision": 0.9175103186191877,
+    "recall": 0.91775,
+    "f1-score": 0.917559216234215,
+    "support": 24000.0
+  }
+}
