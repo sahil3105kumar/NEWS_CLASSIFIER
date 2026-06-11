@@ -24,3 +24,19 @@ stages:
       hash: md5
       md5: 5d188a2bc4a65ce1646720e39d494e2c
       size: 663552
+  fetch:
+    cmd: python -m src.data.fetch_data
+    deps:
+    - path: params.yaml
+      hash: md5
+      md5: b9e313cd50bffdec5beaa67c0b639b90
+      size: 1155
+    - path: src/data/fetch_data.py
+      hash: md5
+      md5: 940c02a2a2c708eb54f849b6ba20006f
+      size: 8184
+    outs:
+    - path: data/raw/news.csv
+      hash: md5
+      md5: 7ad1bff476943b7a8d08b325a88c3e99
+      size: 7339

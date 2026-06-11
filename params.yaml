@@ -36,13 +36,13 @@ sources:
     url: "http://feeds.bbci.co.uk/news/rss.xml"
     type: rss
   - name: reuters_world
-    url: "https://feeds.reuters.com/reuters/worldNews"
+    url: "https://feeds.theguardian.com/theguardian/world/rss"
     type: rss
   - name: techcrunch
     url: "https://techcrunch.com/feed/"
     type: rss
   - name: espn
-    url: "https://www.espn.com/espn/rss/news"
+    url: "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml"
     type: rss
 
 dataset:
