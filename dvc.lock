@@ -34,15 +34,15 @@ stages:
     outs:
     - path: data/raw/news.csv
       hash: md5
-      md5: a250f0f96f1b540885b040cb7a080ef1
-      size: 12515
+      md5: e8d518e6bf44e68d0c897e4e54fc5a04
+      size: 12496
   predict:
     cmd: python -m src.models.predict
     deps:
     - path: data/raw/news.csv
       hash: md5
-      md5: a250f0f96f1b540885b040cb7a080ef1
-      size: 12515
+      md5: e8d518e6bf44e68d0c897e4e54fc5a04
+      size: 12496
     - path: models/best_model.pkl
       hash: md5
       md5: c6dff67ce759b45e8992d7e62f404a8f
@@ -54,9 +54,9 @@ stages:
     outs:
     - path: data/processed/predictions.csv
       hash: md5
-      md5: 287c7c94053efaf1ab1a018d61e58d2b
-      size: 15969
+      md5: 33d7e5de19d8f1728d70d58c1e5e17d6
+      size: 15953
     - path: reports/prediction_stats.json
       hash: md5
-      md5: 5df845b9507c9828e72340a9ad8d0cad
+      md5: 6ed086fffe8da4d9c89251bd3cbf3fe9
       size: 224
