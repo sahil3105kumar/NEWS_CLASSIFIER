@@ -1,29 +1,25 @@
 schema: '2.0'
 stages:
   train:
-    cmd: python src/train.py
+    cmd: python -m src.models.train
     deps:
-    - path: data/raw/news.csv
-      hash: md5
-      md5: 12f082baada6d74e5255190992017923
-      size: 8128
     - path: params.yaml
       hash: md5
-      md5: 2eed0a899c41b272123eba0ad0209e96
-      size: 1202
+      md5: 93ac0c06691be3ff485c9434b4aff5ec
+      size: 1184
     - path: src/models/train.py
       hash: md5
-      md5: bc5df67cf6c9ab018e36f77f37c3c6a9
-      size: 6683
+      md5: 724d9229c2644737208fcd37a406fa1d
+      size: 8252
     outs:
     - path: metrics.json
       hash: md5
-      md5: d41d8cd98f00b204e9800998ecf8427e
-      size: 0
-    - path: mlflow.db
+      md5: baa625e9b4cbb459c503bdd0e846c64e
+      size: 58
+    - path: models/best_model.pkl
       hash: md5
-      md5: 5d188a2bc4a65ce1646720e39d494e2c
-      size: 663552
+      md5: c6dff67ce759b45e8992d7e62f404a8f
+      size: 702124
   fetch:
     cmd: python -m src.data.fetch_data
     deps:
@@ -38,5 +34,29 @@ stages:
     outs:
     - path: data/raw/news.csv
       hash: md5
-      md5: 272d9ff4f8ec6a84d897c13dab97bb97
-      size: 12495
+      md5: a250f0f96f1b540885b040cb7a080ef1
+      size: 12515
+  predict:
+    cmd: python -m src.models.predict
+    deps:
+    - path: data/raw/news.csv
+      hash: md5
+      md5: a250f0f96f1b540885b040cb7a080ef1
+      size: 12515
+    - path: models/best_model.pkl
+      hash: md5
+      md5: c6dff67ce759b45e8992d7e62f404a8f
+      size: 702124
+    - path: src/models/predict.py
+      hash: md5
+      md5: a408b2e66f83a896716dbe1fabb9b543
+      size: 5546
+    outs:
+    - path: data/processed/predictions.csv
+      hash: md5
+      md5: 287c7c94053efaf1ab1a018d61e58d2b
+      size: 15969
+    - path: reports/prediction_stats.json
+      hash: md5
+      md5: 5df845b9507c9828e72340a9ad8d0cad
+      size: 224

@@ -1,6 +1,7 @@
 stages:
   fetch:
     cmd: python -m src.data.fetch_data
+    always_changed: true  
     deps:
       - src/data/fetch_data.py
       - params.yaml
