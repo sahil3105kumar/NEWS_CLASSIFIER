@@ -29,8 +29,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: b9e313cd50bffdec5beaa67c0b639b90
-      size: 1155
+      md5: 93ac0c06691be3ff485c9434b4aff5ec
+      size: 1184
     - path: src/data/fetch_data.py
       hash: md5
       md5: 940c02a2a2c708eb54f849b6ba20006f
@@ -38,5 +38,5 @@ stages:
     outs:
     - path: data/raw/news.csv
       hash: md5
-      md5: 7ad1bff476943b7a8d08b325a88c3e99
-      size: 7339
+      md5: 272d9ff4f8ec6a84d897c13dab97bb97
+      size: 12495
