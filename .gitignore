@@ -194,6 +194,5 @@ data/raw/news.csv
 data/raw/
 data/processed/
 models/
-metrics.json
 reports/prediction_stats.json
 mlflow.db
